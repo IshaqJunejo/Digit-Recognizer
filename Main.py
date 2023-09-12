@@ -19,11 +19,11 @@ X_train = data_train[1:n]
 X_train = X_train / 255
 
 def init_parameters():
-    w1 = np.random.rand(10, 784) - 0.5
-    b1 = np.random.rand(10, 1) - 0.5
-    w2 = np.random.rand(10, 10) - 0.5
-    b2 = np.random.rand(10, 1) - 0.5
-    return w1, b1, w2, b2
+    weights_01 = np.random.rand(10, 784) - 0.5
+    biases_01 = np.random.rand(10, 1) - 0.5
+    weights_02 = np.random.rand(10, 10) - 0.5
+    biases_02 = np.random.rand(10, 1) - 0.5
+    return weights_01, biases_01, weights_02, biases_02
 
 def ReLU(x):
     return np.maximum(x, 0)
@@ -32,10 +32,10 @@ def softmax(z):
     a = np.exp(z) / sum(np.exp(z))
     return a
 
-def forward_propagation(w1, b1, w2, b2, x):
-    z1 = w1.dot(x) + b1
+def forward_propagation(weights_01, biases_01, weights_02, biases_02, x):
+    z1 = weights_01.dot(x) + biases_01
     a1 = ReLU(z1)
-    z2 = w2.dot(a1) + b2
+    z2 = weights_02.dot(a1) + biases_02
     a2 = softmax(z2)
     return z1, a1, z2, a2
 
@@ -48,22 +48,22 @@ def one_hot(y):
     one_hot_y = one_hot_y.T
     return one_hot_y
 
-def back_propagation(z1, a1, z2, a2, w1, w2, x, y):
+def back_propagation(z1, a1, z2, a2, weights_01, weights_02, x, y):
     one_hot_y = one_hot(y)
     dz2 = a2 - one_hot_y
-    dw2 = 1 / m * dz2.dot(a1.T)
-    db2 = 1 / m * np.sum(dz2)
-    dz1 = w2.T.dot(dz2) * ReLU_derivative(z1)
-    dw1 = 1 / m * dz1.dot(x.T)
-    db1 = 1 / m * np.sum(dz1)
-    return dw1, db1, dw2, db2
+    dweights_02 = 1 / m * dz2.dot(a1.T)
+    dbiases_02 = 1 / m * np.sum(dz2)
+    dz1 = weights_02.T.dot(dz2) * ReLU_derivative(z1)
+    dweights_01 = 1 / m * dz1.dot(x.T)
+    dbiases_01 = 1 / m * np.sum(dz1)
+    return dweights_01, dbiases_01, dweights_02, dbiases_02
 
-def update_parameters(w1, b1, w2, b2, dw1, db1, dw2, db2, alpha):
-    w1 = w1 - alpha * dw1
-    b1 = b1 - alpha * db1
-    w2 = w2 - alpha * dw2
-    b2 = b2 - alpha * db2
-    return w1, b1, w2, b2
+def update_parameters(weights_01, biases_01, weights_02, biases_02, dweights_01, dbiases_01, dweights_02, dbiases_02, alpha):
+    weights_01 = weights_01 - alpha * dweights_01
+    biases_01 = biases_01 - alpha * dbiases_01
+    weights_02 = weights_02 - alpha * dweights_02
+    biases_02 = biases_02 - alpha * dbiases_02
+    return weights_01, biases_01, weights_02, biases_02
 
 def get_predictions(A2):
     return np.argmax(A2, 0)
@@ -72,15 +72,27 @@ def get_accuracy(predictions, y):
     print(predictions, y)
     return np.sum(predictions == y) / y.size
 
+accuracy_list = []
+iteration_list = []
+
 def gradient_descent(x, y, iterations, alpha):
-    w1, b1, w2, b2 = init_parameters()
+    weights_01, biases_01, weights_02, biases_02 = init_parameters()
     for i in range(iterations):
-        z1, a1, z2, a2 = forward_propagation(w1, b1, w2, b2, x)
-        dw1, db1, dw2, db2 = back_propagation(z1, a1, z2, a2, w1, w2, x, y)
-        w1, b1, w2, b2 = update_parameters(w1, b1, w2, b2, dw1, db1, dw2, db2, alpha)
-        if i % 20 == 0:
+        z1, a1, z2, a2 = forward_propagation(weights_01, biases_01, weights_02, biases_02, x)
+        dweights_01, dbiases_01, dweights_02, dbiases_02 = back_propagation(z1, a1, z2, a2, weights_01, weights_02, x, y)
+        weights_01, biases_01, weights_02, biases_02 = update_parameters(weights_01, biases_01, weights_02, biases_02, dweights_01, dbiases_01, dweights_02, dbiases_02, alpha)
+        if i % 50 == 0:
             print("Iteration: ", i)
             print("Accuracy: ", get_accuracy(get_predictions(a2), y))
-    return w1, b1, w2, b2
+            iteration_list.append(i)
+            accuracy_list.append(get_accuracy(get_predictions(a2), y) * 100)
+    return weights_01, biases_01, weights_02, biases_02
 
-w1, b1, w2, b2 = gradient_descent(X_train, Y_train, 100, 0.1)
+weights_01, biases_01, weights_02, biases_02 = gradient_descent(X_train, Y_train, 1000, 0.1)
+
+# Plotting the Accuracy of Neural Network
+plt.plot(iteration_list, accuracy_list, color='g')
+plt.axis([0, 1000, 0, 100])
+plt.xlabel('Iterations')
+plt.ylabel('Accuracy')
+plt.show()
