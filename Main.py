@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+import json
 
 data = pd.read_csv('Data/mnist_train.csv')
 
@@ -88,7 +89,7 @@ def gradient_descent(x, y, iterations, alpha):
             accuracy_list.append(get_accuracy(get_predictions(a2), y) * 100)
     return weights_01, biases_01, weights_02, biases_02
 
-weights_01, biases_01, weights_02, biases_02 = gradient_descent(X_train, Y_train, 1000, 0.1)
+weights_01, biases_01, weights_02, biases_02 = gradient_descent(X_train, Y_train, 3900, 0.1)
 
 # Plotting the Accuracy of Neural Network
 plt.plot(iteration_list, accuracy_list, color='g')
@@ -96,3 +97,12 @@ plt.axis([0, 1000, 0, 100])
 plt.xlabel('Iterations')
 plt.ylabel('Accuracy')
 plt.show()
+
+data = {
+    "Weights-01" : weights_01.tolist(),
+    "Biases-01" : biases_01.tolist(),
+    "Weights-02" : weights_02.tolist(),
+    "Biases-02" : biases_02.tolist()
+}
+with open("Dataset.json", "w") as file:
+    json.dump(data, file)

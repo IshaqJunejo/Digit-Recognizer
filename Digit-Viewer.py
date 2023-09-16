@@ -34,6 +34,8 @@ while run:
         if (i - 0) % 28 == 0:
             print("")
     
+    print("Index of this Image is: ", index)
+    print("It is Labeled as: ", data[index][0])
     print("")
     print("Wanna Try it Again?")
     print("0 = No")
