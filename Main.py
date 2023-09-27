@@ -21,13 +21,9 @@ Y_train = data_train[0]
 X_train = data_train[1:n]
 X_train = X_train / 255
 
-# Function to Initialize the Parameters at Random
-def init_parameters():
-    weights_01 = np.random.rand(10, 784) - 0.5
-    biases_01 = np.random.rand(10, 1) - 0.5
-    weights_02 = np.random.rand(10, 10) - 0.5
-    biases_02 = np.random.rand(10, 1) - 0.5
-    return weights_01, biases_01, weights_02, biases_02
+# List used to store Accuracy with Respect to Iteration Number to be Plotted
+accuracy_list = []
+iteration_list = []
 
 # Activation Function Rectified Linear Unit (ReLU)
 def ReLU(x):
@@ -37,14 +33,6 @@ def ReLU(x):
 def softmax(z):
     a = np.exp(z) / sum(np.exp(z))
     return a
-
-# Function for Forward Propagation
-def forward_propagation(weights_01, biases_01, weights_02, biases_02, x):
-    z1 = weights_01.dot(x) + biases_01
-    a1 = ReLU(z1)
-    z2 = weights_02.dot(a1) + biases_02
-    a2 = softmax(z2)
-    return z1, a1, z2, a2
 
 # Derivative of Activation function ReLU
 def ReLU_derivative(x):
@@ -57,6 +45,22 @@ def one_hot(y):
     one_hot_y = one_hot_y.T
     return one_hot_y
 
+# Function to Initialize the Parameters at Random
+def init_parameters():
+    weights_01 = np.random.rand(10, 784) - 0.5
+    biases_01 = np.random.rand(10, 1) - 0.5
+    weights_02 = np.random.rand(10, 10) - 0.5
+    biases_02 = np.random.rand(10, 1) - 0.5
+    return weights_01, biases_01, weights_02, biases_02
+
+# Function for Forward Propagation
+def forward_propagation(weights_01, biases_01, weights_02, biases_02, x):
+    z1 = weights_01.dot(x) + biases_01
+    a1 = ReLU(z1)
+    z2 = weights_02.dot(a1) + biases_02
+    a2 = softmax(z2)
+    return z1, a1, z2, a2
+
 # Function for Back Propagation
 def back_propagation(z1, a1, z2, a2, weights_01, weights_02, x, y):
     one_hot_y = one_hot(y)
@@ -68,7 +72,7 @@ def back_propagation(z1, a1, z2, a2, weights_01, weights_02, x, y):
     dbiases_01 = 1 / m * np.sum(dz1)
     return dweights_01, dbiases_01, dweights_02, dbiases_02
 
-# Function for Updating Parameters on the basis of 'Derivates of Weights and Biases' Computed through Back Propagation
+# Function for Updating Parameters Based of "DERIVATIVES OF WIEGHTS AND BIASES" Computed through Back Propagation
 def update_parameters(weights_01, biases_01, weights_02, biases_02, dweights_01, dbiases_01, dweights_02, dbiases_02, alpha):
     weights_01 = weights_01 - alpha * dweights_01
     biases_01 = biases_01 - alpha * dbiases_01
@@ -84,10 +88,6 @@ def get_predictions(A2):
 def get_accuracy(predictions, y):
     print(predictions, y)
     return np.sum(predictions == y) / y.size
-
-# List used to store Accuracy with Respect to Iteration Number to be Plotted
-accuracy_list = []
-iteration_list = []
 
 # Gradient Descent Function
 def gradient_descent(x, y, iterations, alpha):
