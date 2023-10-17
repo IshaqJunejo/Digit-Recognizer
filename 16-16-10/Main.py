@@ -52,13 +52,7 @@ def forward_propagation(weights_01, biases_01, weights_02, biases_02, weights_03
     a3 = softmax(z3)
     return z1, a1, z2, a2, z3, a3
 
-def back_propagation(z1, a1, z2, a2, z3, a3, weights_01, weights_02, weights_03, biases_01, biases_02, biases_03, x, y):
-    '''dweights_01 = weights_01 * 0.0
-    dweights_02 = weights_02 * 0.0
-    dweights_03 = weights_03 * 0.0
-    dbiases_01 = biases_01 * 0.0
-    dbiases_02 = biases_02 * 0.0
-    dbiases_03 = biases_03 * 0.0'''
+def back_propagation(z1, a1, z2, a2, z3, a3, weights_01, weights_02, weights_03, x, y):
     one_hot_y = one_hot(y)
     dz3 = a3 - one_hot_y
     dweights_03 = 1 / m * dz3.dot(a2.T)
@@ -72,12 +66,12 @@ def back_propagation(z1, a1, z2, a2, z3, a3, weights_01, weights_02, weights_03,
     return dweights_01, dbiases_01, dweights_02, dbiases_02, dweights_03, dbiases_03
 
 def update_parameters(weights_01, biases_01, weights_02, biases_02, weights_03, biases_03, dweights_01, dbiases_01, dweights_02, dbiases_02, dweights_03, dbiases_03, alpha):
-    weights_01 = weights_01 - alpha * dweights_01
-    biases_01 = biases_01 - alpha * dbiases_01
-    weights_02 = weights_02 - alpha * dweights_02
-    biases_02 = biases_02 - alpha * dbiases_02
-    weights_03 = weights_03 - alpha * dweights_03
-    biases_03 = biases_03 - alpha * dbiases_03
+    weights_01 = weights_01 - (dweights_01 * alpha)
+    biases_01 = biases_01 - (dbiases_01 * alpha)
+    weights_02 = weights_02 - (dweights_02 * alpha)
+    biases_02 = biases_02 - (dbiases_02 * alpha)
+    weights_03 = weights_03 - (dweights_03 * alpha)
+    biases_03 = biases_03 - (dbiases_03 * alpha)
     return weights_01, biases_01, weights_02, biases_02, weights_03, biases_03
 
 def get_predictions(A2):
@@ -89,14 +83,14 @@ def get_accuracy(predictions, y):
 
 def gradient_descent(x, y, iterations, alpha):
     weights_01, biases_01, weights_02, biases_02, weights_03, biases_03 = init_parameters()
-    for i in range(iterations):
+    for i in range(iterations + 1):
         z1, a1, z2, a2, z3, a3 = forward_propagation(weights_01, biases_01, weights_02, biases_02, weights_03, biases_03, x)
-        dweights_01, dbiases_01, dweights_02, dbiases_02, dweights_03, dbiases_03 = back_propagation(z1, a1, z2, a2, z3, a3, weights_01, weights_02, weights_03, biases_01, biases_02, biases_03, x, y)
+        dweights_01, dbiases_01, dweights_02, dbiases_02, dweights_03, dbiases_03 = back_propagation(z1, a1, z2, a2, z3, a3, weights_01, weights_02, weights_03, x, y)
         weights_01, biases_01, weights_02, biases_02, weights_03, biases_03 = update_parameters(weights_01, biases_01, weights_02, biases_02, weights_03, biases_03, dweights_01, dbiases_01, dweights_02, dbiases_02, dweights_03, dbiases_03, alpha)
-        if i % 50 == 0:
+        if i % 200 == 0:
             print("Iteration: ", i)
             print("Accuracy: ", get_accuracy(get_predictions(a2), Y_train) * 100, "%")
     
     return weights_01, biases_01, weights_02, biases_02, weights_03, biases_03
 
-weights_01, biases_01, weights_02, biases_02, weights_03, biases_03 = gradient_descent(X_train, Y_train, 1000, 0.1)
+weights_01, biases_01, weights_02, biases_02, weights_03, biases_03 = gradient_descent(X_train, Y_train, 8000, 0.02)
